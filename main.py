@@ -24,20 +24,26 @@ def scale_image(image, scale):
     h = image.get_height()
     return pygame.transform.scale(image, (w * scale, h * scale))
 
+#load mage images
+mob_animation = []
+mob_types = ['mage', 'orc', 'soul', 'doctor', 'thief', 'wood', 'monstro']
+
 # create player
 animation_types = ['idle', 'run']
-# load images
-animation_list = []
-for animation in animation_types:
-    temp_list = []
-    for i in range(4):
-        img = pygame.image.load(f"assets/components/character/{animation}/{i}.png").convert_alpha()
-        img = scale_image(img, constants.SCALE)
-        temp_list.append(img)
-    animation_list.append(temp_list)
+for mon in mob_types:
+    # load images
+    animation_list = []
+    for animation in animation_types:
+        temp_list = []
+        for i in range(4):
+            img = pygame.image.load(f"assets/components/enemies/{mob}/{animation}/{i}.png").convert_alpha()
+            img = scale_image(img, constants.SCALE)
+            temp_list.append(img)
+        animation_list.append(temp_list)
+    mob_animation.append(animation_list)
 
 # create Character
-player = Character(100, 100, animation_list)
+player = Character(100, 100, mob_animation, 0)
 
 # game loop
 run = True
