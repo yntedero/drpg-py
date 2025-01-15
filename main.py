@@ -17,7 +17,6 @@ move_right = False
 move_up = False
 move_down = False
 
-
 #help function to scale image
 def scale_image(image, scale):
     w = image.get_width()
@@ -30,13 +29,13 @@ mob_types = ['mage', 'orc', 'soul', 'doctor', 'thief', 'wood', 'monstro']
 
 # create player
 animation_types = ['idle', 'run']
-for mon in mob_types:
+for mob in mob_types:
     # load images
     animation_list = []
     for animation in animation_types:
         temp_list = []
         for i in range(4):
-            img = pygame.image.load(f"assets/components/enemies/{mob}/{animation}/{i}.png").convert_alpha()
+            img = pygame.image.load(f"assets/components/characters/{mob}/{animation}/{i}.png").convert_alpha()
             img = scale_image(img, constants.SCALE)
             temp_list.append(img)
         animation_list.append(temp_list)
