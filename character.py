@@ -39,11 +39,10 @@ class Character():
         else:
             self.update_action(0)
 
-        animation_cooldown = 100
         # handle animation
         self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed since the last update
-        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+        if pygame.time.get_ticks() - self.update_time > constants.ANIMATION_COOLDOWN:
             self.update_time = pygame.time.get_ticks()
             self.frame_index += 1
         # if the animation has run out the reset

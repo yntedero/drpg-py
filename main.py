@@ -86,6 +86,10 @@ while True:
     if fireball:
         fireball_group.add(fireball)
 
+    # update fireball
+    for fireball in fireball_group:
+        fireball.update()
+
     # draw player layer
     player.draw(screen)
     wand.draw(screen)
