@@ -9,8 +9,10 @@ class Weapon():
         self.fireball_image = fireball_image
         self.rect = self.image.get_rect()
         self.fired = False
+        self.last_fire = pygame.time.get_ticks()
 
     def update(self, player):
+        fire_cooldown = 500
         fireball = None
         self.rect.center = player.rect.center
 
@@ -21,9 +23,10 @@ class Weapon():
         self.angle = math.degrees(math.atan2(y_dist, x_dist))
 
         #get mouse click
-        if pygame.mouse.get_pressed()[0] and self.fired == False:
+        if pygame.mouse.get_pressed()[0] and self.fired == False and (pygame.time.get_ticks() - self.last_fire) >= fire_cooldown:
             fireball = Fireball(self.fireball_image, self.rect.centerx, self.rect.centery, self.angle)
             self.fired = True
+            self.last_fire = pygame.time.get_ticks()
         #reset mouse click
         if not pygame.mouse.get_pressed()[0]:
             self.fired = False
@@ -39,7 +42,7 @@ class Fireball(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.original_image = image
         self.angle = angle
-        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.image = pygame.transform.rotate(self.original_image, self.angle - 90)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 
