@@ -47,10 +47,17 @@ for mob in mob_types:
     mob_animation.append(animation_list)
 
 # create Character
-player = Character(100, 100, mob_animation, 0)
+player = Character(100, 100, 100,mob_animation, 0)
 
-# create weapon
+# create enemy
+enemy = Character(100, 100, 100, mob_animation, 1)
+
+# create players weapon
 wand = Weapon(wand_image, fireball_image)
+
+# create empty enemy list
+enemy_list = []
+enemy_list.append(enemy)
 
 #create sprite group
 fireball_group = pygame.sprite.Group()
@@ -80,21 +87,25 @@ while True:
     # move player
     player.move(dx, dy)
 
-    # update player animation
+    # update player
+    for enemy in enemy_list:
+        enemy.update()
     player.update()
     fireball = wand.update(player)
     if fireball:
         fireball_group.add(fireball)
-
-    # update fireball
     for fireball in fireball_group:
-        fireball.update()
+        fireball.update(enemy_list)
 
-    # draw player layer
+    # draw player
+    for enemy in enemy_list:
+        enemy.draw(screen)
     player.draw(screen)
     wand.draw(screen)
     for fireball in fireball_group:
         fireball.draw(screen)
+
+    print(enemy.health)
 
     # even handler
     for event in pygame.event.get():
