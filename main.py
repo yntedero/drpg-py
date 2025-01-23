@@ -24,7 +24,7 @@ def scale_image(image, scale):
     h = image.get_height()
     return pygame.transform.scale(image, (w * scale, h * scale))
 
-#load weapon images
+#load weapon images and fireball
 wand_image = scale_image(pygame.image.load("assets/components/weapons/wand.png").convert_alpha(), constants.WEAPON_SCALE)
 fireball_image = scale_image(pygame.image.load("assets/components/weapons/fireball.png").convert_alpha(), constants.WEAPON_SCALE)
 
@@ -50,7 +50,10 @@ for mob in mob_types:
 player = Character(100, 100, mob_animation, 0)
 
 # create weapon
-wand = Weapon(wand_image)
+wand = Weapon(wand_image, fireball_image)
+
+#create sprite group
+fireball_group = pygame.sprite.Group()
 
 # game loop
 run = True
@@ -79,11 +82,15 @@ while True:
 
     # update player animation
     player.update()
-    wand.update(player)
+    fireball = wand.update(player)
+    if fireball:
+        fireball_group.add(fireball)
 
     # draw player layer
     player.draw(screen)
     wand.draw(screen)
+    for fireball in fireball_group:
+        fireball.draw(screen)
 
     # even handler
     for event in pygame.event.get():
