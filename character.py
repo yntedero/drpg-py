@@ -12,7 +12,7 @@ class Character():
         self.update_time = pygame.time.get_ticks()
         self.running = False
         self.image = self.animation_list[self.action][self.frame_index]
-        self.rect = pygame.Rect(0, 0, 32, 32)
+        self.rect = pygame.Rect(0, 0, 40, 40)
         self.rect.center = (x, y)
 
     def move(self, dx, dy):
@@ -60,5 +60,9 @@ class Character():
 
     def draw(self, surface):
         flipped_image = pygame.transform.flip(self.image, self.flip, False)
-        surface.blit(flipped_image, self.rect.topleft)
+        # draw character image to the screen at the rect location
+        if self.character_type == 0:
+            surface.blit(flipped_image, (self.rect.x, self.rect.y - constants.PLAYER_SCALE * constants.OFFSET))
+        else:
+            surface.blit(self.image, self.rect)
         pygame.draw.rect(surface, constants.RED, self.rect, 1)

@@ -2,6 +2,7 @@ import pygame
 
 import constants
 from character import Character
+from weapon import Weapon
 
 pygame.init()
 
@@ -17,11 +18,15 @@ move_right = False
 move_up = False
 move_down = False
 
-#help function to scale image
+#helper function to scale image
 def scale_image(image, scale):
     w = image.get_width()
     h = image.get_height()
     return pygame.transform.scale(image, (w * scale, h * scale))
+
+#load weapon images
+wand_image = scale_image(pygame.image.load("assets/components/weapons/wand.png").convert_alpha(), constants.WEAPON_SCALE)
+fireball_image = scale_image(pygame.image.load("assets/components/weapons/fireball.png").convert_alpha(), constants.WEAPON_SCALE)
 
 #load mage images
 mob_animation = []
@@ -36,13 +41,16 @@ for mob in mob_types:
         temp_list = []
         for i in range(4):
             img = pygame.image.load(f"assets/components/characters/{mob}/{animation}/{i}.png").convert_alpha()
-            img = scale_image(img, constants.SCALE)
+            img = scale_image(img, constants.PLAYER_SCALE)
             temp_list.append(img)
         animation_list.append(temp_list)
     mob_animation.append(animation_list)
 
 # create Character
 player = Character(100, 100, mob_animation, 0)
+
+# create weapon
+wand = Weapon(wand_image)
 
 # game loop
 run = True
@@ -71,9 +79,11 @@ while True:
 
     # update player animation
     player.update()
+    wand.update(player)
 
     # draw player layer
     player.draw(screen)
+    wand.draw(screen)
 
     # even handler
     for event in pygame.event.get():
