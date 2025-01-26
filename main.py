@@ -1,7 +1,8 @@
+# main.py
 import pygame
-
 import constants
 from character import Character
+from items import Item
 from weapon import Weapon
 
 pygame.init()
@@ -9,66 +10,87 @@ pygame.init()
 screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
 pygame.display.set_caption("Dungeon RPG")
 
-# clock for frame rate
+# Clock to maintain FPS
 clock = pygame.time.Clock()
 
-# define player movement variables
+# Player movement flags
 move_left = False
 move_right = False
 move_up = False
 move_down = False
 
-#define font
+# Font
 font = pygame.font.Font("assets/fonts/ColleenAntics.ttf", 20)
 
-#helper function to scale image
+# Helper function to scale images
 def scale_image(image, scale):
     w = image.get_width()
     h = image.get_height()
-    return pygame.transform.scale(image, (w * scale, h * scale))
+    return pygame.transform.scale(image, (int(w * scale), int(h * scale)))
 
-# load health images
+# Load hearts (HP indicators)
 heart_empty = scale_image(pygame.image.load("assets/components/heart/heart-empty.png").convert_alpha(), constants.HEART_SCALE)
-heart_half = scale_image(pygame.image.load("assets/components/heart/heart-half.png").convert_alpha(), constants.HEART_SCALE)
-heart_full = scale_image(pygame.image.load("assets/components/heart/heart-full.png").convert_alpha(), constants.HEART_SCALE)
+heart_half  = scale_image(pygame.image.load("assets/components/heart/heart-half.png").convert_alpha(),  constants.HEART_SCALE)
+heart_full  = scale_image(pygame.image.load("assets/components/heart/heart-full.png").convert_alpha(),  constants.HEART_SCALE)
 
-#load weapon images and fireball
+# Load coin animations
+coin_image = []
+for i in range(4):
+    img = scale_image(pygame.image.load(f"assets/components/items/coin/coin_{i}.png").convert_alpha(), constants.COIN_SCALE)
+    coin_image.append(img)
+
+# Load a potion
+red_potion = scale_image(pygame.image.load("assets/components/items/heal/health-flask.png").convert_alpha(), constants.POTION_SCALE)
+
+# Load weapon and projectile (fireball)
 wand_image = scale_image(pygame.image.load("assets/components/weapons/wand.png").convert_alpha(), constants.WEAPON_SCALE)
 fireball_image = scale_image(pygame.image.load("assets/components/weapons/fireball.png").convert_alpha(), constants.WEAPON_SCALE)
 
-#load mage images
+# Load character animations
 mob_animation = []
 mob_types = ['mage', 'orc', 'soul', 'doctor', 'thief', 'wood', 'monstro']
-
-# create player
 animation_types = ['idle', 'run']
+
 for mob in mob_types:
-    # load images
     animation_list = []
     for animation in animation_types:
         temp_list = []
         for i in range(4):
-            img = pygame.image.load(f"assets/components/characters/{mob}/{animation}/{i}.png").convert_alpha()
+            path = f"assets/components/characters/{mob}/{animation}/{i}.png"
+            img = pygame.image.load(path).convert_alpha()
             img = scale_image(img, constants.PLAYER_SCALE)
             temp_list.append(img)
         animation_list.append(temp_list)
     mob_animation.append(animation_list)
 
-# function to draw player health
-def draw_health():
-    pygame.draw.rect(screen, constants.PANEL, (0, 0, constants.SCREEN_WIDTH, 50))
-    pygame.draw.line(screen, constants.WHITE, (0, 50), (constants.SCREEN_WIDTH, 50), 2)
-    # draw lives
-    for i in range(5):
-        # draw full heart
-        if player.health >= ((i + 1) * 20):
-            screen.blit(heart_full, (10 + i * 50, 0))
-        elif player.health >= (i * 20):
-            screen.blit(heart_half, (10 + i * 50, 0))
-        else:
-            screen.blit(heart_empty, (10 + i * 50, 0))
+# Helper function to draw text
+def draw_text(text, font, color, x, y):
+    img = font.render(text, True, color)
+    screen.blit(img, (x, y))
 
-# damage text class
+# Display HP and score at the top panel
+def draw_health_and_score(player):
+    # Panel background
+    pygame.draw.rect(screen, constants.PANEL, (0, 0, constants.SCREEN_WIDTH, 50))
+    # Panel separator line
+    pygame.draw.line(screen, constants.WHITE, (0, 50), (constants.SCREEN_WIDTH, 50), 2)
+
+    # Draw hearts
+    half_drawn = False
+    for i in range(5):
+        # Each heart = 20 HP
+        if player.health >= (i + 1) * 20:
+            screen.blit(heart_full, (10 + i * 40, 0))
+        elif (player.health % 20 != 0) and not half_drawn and player.health >= i * 20:
+            screen.blit(heart_half, (10 + i * 40, 0))
+            half_drawn = True
+        else:
+            screen.blit(heart_empty, (10 + i * 40, 0))
+
+    # Draw the player's score in the top-right
+    draw_text(f"x {player.score}", font, constants.RED, constants.SCREEN_WIDTH - 60, 15)
+
+# Damage text (floating text when hitting enemies)
 class DamageText(pygame.sprite.Sprite):
     def __init__(self, x, y, damage, color):
         pygame.sprite.Sprite.__init__(self)
@@ -78,87 +100,109 @@ class DamageText(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self):
-        # move damage text up
+        # Move the text upwards
         self.rect.y -= 1
-        # delete after a few frames
+        # Remove it after 30 frames
         self.counter += 1
         if self.counter > 30:
             self.kill()
 
-# create Character
+# Create the player
 player = Character(100, 100, 100, mob_animation, 0)
+# Create an enemy
+enemy = Character(300, 200, 100, mob_animation, 1)
 
-# create enemy
-enemy = Character(100, 100, 100, mob_animation, 1)
-
-# create players weapon
+# Create player's weapon
 wand = Weapon(wand_image, fireball_image)
 
-# create empty enemy list
+# Enemy list
 enemy_list = []
 enemy_list.append(enemy)
 
-#create sprite group
+# Sprite groups
 damage_text_group = pygame.sprite.Group()
 fireball_group = pygame.sprite.Group()
+item_group = pygame.sprite.Group()
 
-# game loop
+# Create items (potion, coin, etc.)
+potion = Item(200, 200, 1, [red_potion])
+item_group.add(potion)
+coin = Item(300, 200, 0, coin_image)
+item_group.add(coin)
+
+# Similar to the tutorial, add a coin to show the score visually
+score_coin = Item(constants.SCREEN_WIDTH - 80, 25, 0, coin_image)
+item_group.add(score_coin)
+
 run = True
-while True:
-
-    # frame rate
+while run:
+    # Maintain the framerate
     clock.tick(constants.FPS)
 
-    # draw background
+    # Fill the background
     screen.fill(constants.BG)
 
-    # calc player movement
+    # Calculate movement
     dx = 0
     dy = 0
-    if move_right == True:
+    if move_right:
         dx = constants.SPEED
-    if move_left == True:
+    if move_left:
         dx = -constants.SPEED
-    if move_up == True:
+    if move_up:
         dy = -constants.SPEED
-    if move_down == True:
+    if move_down:
         dy = constants.SPEED
 
-    # move player
+    # Move player and update animations
     player.move(dx, dy)
-
-    # update player
+    player.update()
     for enemy in enemy_list:
         enemy.update()
-    player.update()
+
+    # Handle weapon logic
     fireball = wand.update(player)
     if fireball:
         fireball_group.add(fireball)
-    for fireball in fireball_group:
-        fireball.update(enemy_list)
-    damage_text_group.update()
-    draw_health()
 
-    # draw player on screen
+    # Update each fireball
+    for fball in fireball_group:
+        damage, damage_pos = fball.update(enemy_list)
+        # If there is damage, display floating damage text
+        if damage:
+            dmg_text = DamageText(damage_pos.centerx, damage_pos.centery, str(damage), constants.RED)
+            damage_text_group.add(dmg_text)
+
+    # Update the damage text group
+    damage_text_group.update()
+
+    # Update items (coins, potions)
+    item_group.update(player)
+
+    # Draw enemies
     for enemy in enemy_list:
         enemy.draw(screen)
+    # Draw player
     player.draw(screen)
+    # Draw wand
     wand.draw(screen)
-    for fireball in fireball_group:
-        damage, damage_pos = fireball.update(enemy_list)
-        fireball.draw(screen)
-        if damage:
-            damage_text = DamageText(damage_pos.centerx, damage_pos.centery, str(damage), constants.RED)
-            damage_text_group.add(damage_text)
+    # Draw fireballs
+    for fball in fireball_group:
+        fball.draw(screen)
+    # Draw damage text
     damage_text_group.draw(screen)
+    # Draw items
+    item_group.draw(screen)
 
-    # even handler
+    # Draw the panel with HP and score
+    draw_health_and_score(player)
+
+    # Event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-            pygame.quit()
 
-        # keyboard input press
+        # Key presses
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
                 move_left = True
@@ -169,7 +213,7 @@ while True:
             if event.key == pygame.K_s:
                 move_down = True
 
-        # keyboard input release
+        # Key releases
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
                 move_left = False
@@ -181,3 +225,5 @@ while True:
                 move_down = False
 
     pygame.display.update()
+
+pygame.quit()
