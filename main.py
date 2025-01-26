@@ -25,7 +25,7 @@ moving_up = False
 moving_down = False
 
 #define font
-font = pygame.font.Font("assets/fonts/AtariClassic.ttf", 20)
+font = pygame.font.Font("assets/fonts/ColleenAntics.ttf", 25)
 
 #helper function to scale image
 def scale_img(image, scale):
@@ -34,26 +34,26 @@ def scale_img(image, scale):
   return pygame.transform.scale(image, (w * scale, h * scale))
 
 #load heart images
-heart_empty = scale_img(pygame.image.load("assets/images/items/heart_empty.png").convert_alpha(), constants.ITEM_SCALE)
-heart_half = scale_img(pygame.image.load("assets/images/items/heart_half.png").convert_alpha(), constants.ITEM_SCALE)
-heart_full = scale_img(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(), constants.ITEM_SCALE)
+heart_empty = scale_img(pygame.image.load("assets/images/items/heart_empty.png").convert_alpha(), constants.HEALTH_SCALE)
+heart_half = scale_img(pygame.image.load("assets/images/items/heart_half.png").convert_alpha(), constants.HEALTH_SCALE)
+heart_full = scale_img(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(), constants.HEALTH_SCALE)
 
 #load coin images
 coin_images = []
 for x in range(4):
-  img = scale_img(pygame.image.load(f"assets/images/items/coin_f{x}.png").convert_alpha(), constants.ITEM_SCALE)
+  img = scale_img(pygame.image.load(f"assets/images/items/coin_{x}.png").convert_alpha(), constants.COIN_SCALE)
   coin_images.append(img)
 
 #load potion image
-red_potion = scale_img(pygame.image.load("assets/images/items/potion_red.png").convert_alpha(), constants.POTION_SCALE)
+red_potion = scale_img(pygame.image.load("assets/images/items/health_flask.png").convert_alpha(), constants.POTION_SCALE)
 
 item_images = []
 item_images.append(coin_images)
 item_images.append(red_potion)
 
 #load weapon images
-bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(), constants.WEAPON_SCALE)
-arrow_image = scale_img(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(), constants.WEAPON_SCALE)
+bow_image = scale_img(pygame.image.load("assets/images/weapons/wand.png").convert_alpha(), constants.WEAPON_SCALE)
+arrow_image = scale_img(pygame.image.load("assets/images/weapons/fireball.png").convert_alpha(), constants.WEAPON_SCALE)
 
 #load tilemap images
 tile_list = []
@@ -64,7 +64,7 @@ for x in range(constants.TILE_TYPES):
 
 #load character images
 mob_animations = []
-mob_types = ["elf", "imp", "skeleton", "goblin", "muddy", "tiny_zombie", "big_demon"]
+mob_types = ["mage", "orc", "soul", "doctor", "thief", "wood", "monstro"]
 
 animation_types = ["idle", "run"]
 for mob in mob_types:
@@ -101,9 +101,9 @@ def draw_info():
       screen.blit(heart_empty, (10 + i * 50, 0))
 
   #level
-  draw_text("LEVEL: " + str(level), font, constants.WHITE, constants.SCREEN_WIDTH / 2, 15)
+  draw_text("LEVEL: " + str(level), font, constants.WHITE, constants.SCREEN_WIDTH / 2, 12)
   #show score
-  draw_text(f"X{player.score}", font, constants.WHITE, constants.SCREEN_WIDTH - 100, 15)
+  draw_text(f"X{player.score}", font, constants.WHITE, constants.SCREEN_WIDTH - 55, 12)
 
 #create empty tile list
 world_data = []
@@ -154,7 +154,7 @@ damage_text_group = pygame.sprite.Group()
 arrow_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 
-score_coin = Item(constants.SCREEN_WIDTH - 115, 23, 0, coin_images, True)
+score_coin = Item(constants.SCREEN_WIDTH - 70, 24, 0, coin_images, True)
 item_group.add(score_coin)
 #add the items from the level data
 for item in world.item_list:
