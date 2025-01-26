@@ -17,13 +17,13 @@ class Weapon():
         fireball = None
         self.rect.center = player.rect.center
 
-        # Calculate the angle between the player and the mouse cursor
+        # angle from mouse position
         pos = pygame.mouse.get_pos()
         x_dist = pos[0] - player.rect.centerx
-        y_dist = -(pos[1] - player.rect.centery)  # negative because pygame's y-increases down
+        y_dist = -(pos[1] - player.rect.centery)
         self.angle = math.degrees(math.atan2(y_dist, x_dist))
 
-        # Check for mouse click (left button) to fire
+        # if left mouse pressed and cooldown ready
         if pygame.mouse.get_pressed()[0] and not self.fired \
                 and (pygame.time.get_ticks() - self.last_fire) >= constants.FIRE_COOLDOWN:
             fireball = Fireball(
@@ -35,14 +35,14 @@ class Weapon():
             self.fired = True
             self.last_fire = pygame.time.get_ticks()
 
-        # Reset the "fired" state if button is not held
+        # reset fired if mouse not pressed
         if not pygame.mouse.get_pressed()[0]:
             self.fired = False
 
         return fireball
 
     def draw(self, surface):
-        # Rotate the weapon image based on angle
+        # rotate weapon
         self.image = pygame.transform.rotate(self.original_image, self.angle)
         surface.blit(
             self.image,
@@ -57,33 +57,31 @@ class Fireball(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.original_image = image
         self.angle = angle
-        # Rotate the fireball sprite
+        # rotate sprite
         self.image = pygame.transform.rotate(self.original_image, self.angle - 90)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 
-        # Calculate speed on X/Y based on angle
+        # speed from angle
         self.dx = math.cos(math.radians(self.angle)) * constants.FIREBALL_SPEED
         self.dy = -(math.sin(math.radians(self.angle)) * constants.FIREBALL_SPEED)
 
     def update(self, enemy_list):
-        # Variables for damage
         damage = 0
         damage_pos = None
 
-        # Move the fireball
+        # move fireball
         self.rect.x += self.dx
         self.rect.y += self.dy
 
-        # Remove if it goes off screen
+        # remove if off screen
         if (self.rect.right < 0 or self.rect.left > constants.SCREEN_WIDTH or
                 self.rect.bottom < 0 or self.rect.top > constants.SCREEN_HEIGHT):
             self.kill()
 
-        # Check collision with any enemy
+        # check collision
         for enemy in enemy_list:
             if enemy.rect.colliderect(self.rect) and enemy.alive:
-                # Calculate random damage
                 damage = 10 + random.randint(-5, 5)
                 damage_pos = enemy.rect
                 enemy.health -= damage
