@@ -63,7 +63,7 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animation.append(animation_list)
 
-# draw text helper
+# helper function to draw text
 def draw_text(text, font, color, x, y):
     img = font.render(text, True, color)
     screen.blit(img, (x, y))
@@ -83,7 +83,7 @@ def draw_health_and_score(player):
         else:
             screen.blit(heart_empty, (10 + i * 40, 0))
 
-    draw_text(f"x {player.score}", font, constants.RED, constants.SCREEN_WIDTH - 60, 15)
+    draw_text(f"x {player.score}", font, constants.WHITE, constants.SCREEN_WIDTH - 75, 15)
 
 # class for floating damage text
 class DamageText(pygame.sprite.Sprite):
@@ -126,7 +126,7 @@ coin = Item(300, 200, 0, coin_image)
 item_group.add(coin)
 
 # add coin to show score
-score_coin = Item(constants.SCREEN_WIDTH - 80, 25, 0, coin_image)
+score_coin = Item(constants.SCREEN_WIDTH - 90, 25, 0, coin_image)
 item_group.add(score_coin)
 
 run = True
@@ -189,6 +189,7 @@ while run:
     item_group.draw(screen)
     # draw hp and score
     draw_health_and_score(player)
+    score_coin.draw(screen)
 
     # event handler
     for event in pygame.event.get():

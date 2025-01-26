@@ -12,7 +12,7 @@ class Item(pygame.sprite.Sprite):
         self.rect.center = (x, y)
 
     def update(self, player):
-        # check pickup
+        # check if player picks up item by the collision
         if self.rect.colliderect(player.rect):
             # coin
             if self.item_type == 0:
@@ -26,7 +26,9 @@ class Item(pygame.sprite.Sprite):
 
         # simple animation
         animation_cooldown = 150
+        #
         self.image = self.animation_list[self.frame_index]
+        # check if enough time passed to update animation
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
