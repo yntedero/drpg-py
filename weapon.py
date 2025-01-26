@@ -13,7 +13,6 @@ class Weapon():
         self.fired = False
         self.last_fire = pygame.time.get_ticks()
 
-
     def update(self, player):
         fireball = None
         self.rect.center = player.rect.center
@@ -53,6 +52,10 @@ class Fireball(pygame.sprite.Sprite):
         self.dy = -(math.sin(math.radians(self.angle)) * constants.FIREBALL_SPEED) # negative because pygame y coordinates increase down the screen
 
     def update(self, enemy_list):
+        # reset variables
+        damage = 0
+        damage_pos = None
+
         # reposition the fireball based on speed
         self.rect.x += self.dx
         self.rect.y += self.dy
@@ -65,9 +68,12 @@ class Fireball(pygame.sprite.Sprite):
         for enemy in enemy_list:
             if enemy.rect.colliderect(self.rect) and enemy.alive:
                 damage = 10 + random.randint(-5, 5)
+                damage_pos = enemy.rect
                 enemy.health -= damage
                 self.kill()
                 break
+
+        return damage, damage_pos
 
     def draw(self, surface):
         surface.blit(self.image, ((self.rect.centerx - int(self.image.get_width() / 2)), self.rect.centery - int(self.image.get_height() / 2)))

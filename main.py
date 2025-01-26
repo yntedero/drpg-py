@@ -27,6 +27,11 @@ def scale_image(image, scale):
     h = image.get_height()
     return pygame.transform.scale(image, (w * scale, h * scale))
 
+# load health images
+heart_empty = scale_image(pygame.image.load("assets/components/heart/heart-empty.png").convert_alpha(), constants.HEART_SCALE)
+heart_half = scale_image(pygame.image.load("assets/components/heart/heart-half.png").convert_alpha(), constants.HEART_SCALE)
+heart_full = scale_image(pygame.image.load("assets/components/heart/heart-full.png").convert_alpha(), constants.HEART_SCALE)
+
 #load weapon images and fireball
 wand_image = scale_image(pygame.image.load("assets/components/weapons/wand.png").convert_alpha(), constants.WEAPON_SCALE)
 fireball_image = scale_image(pygame.image.load("assets/components/weapons/fireball.png").convert_alpha(), constants.WEAPON_SCALE)
@@ -49,6 +54,20 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animation.append(animation_list)
 
+# function to draw player health
+def draw_health():
+    pygame.draw.rect(screen, constants.PANEL, (0, 0, constants.SCREEN_WIDTH, 50))
+    pygame.draw.line(screen, constants.WHITE, (0, 50), (constants.SCREEN_WIDTH, 50), 2)
+    # draw lives
+    for i in range(5):
+        # draw full heart
+        if player.health >= ((i + 1) * 20):
+            screen.blit(heart_full, (10 + i * 50, 0))
+        elif player.health >= (i * 20):
+            screen.blit(heart_half, (10 + i * 50, 0))
+        else:
+            screen.blit(heart_empty, (10 + i * 50, 0))
+
 # damage text class
 class DamageText(pygame.sprite.Sprite):
     def __init__(self, x, y, damage, color):
@@ -56,10 +75,18 @@ class DamageText(pygame.sprite.Sprite):
         self.image = font.render(str(damage), True, color)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.counter = 0
 
+    def update(self):
+        # move damage text up
+        self.rect.y -= 1
+        # delete after a few frames
+        self.counter += 1
+        if self.counter > 30:
+            self.kill()
 
 # create Character
-player = Character(100, 100, 100,mob_animation, 0)
+player = Character(100, 100, 100, mob_animation, 0)
 
 # create enemy
 enemy = Character(100, 100, 100, mob_animation, 1)
@@ -74,10 +101,6 @@ enemy_list.append(enemy)
 #create sprite group
 damage_text_group = pygame.sprite.Group()
 fireball_group = pygame.sprite.Group()
-
-#temporeary damage text
-damage_text = DamageText(300, 400, "15", constants.RED)
-damage_text_group.add(damage_text)
 
 # game loop
 run = True
@@ -114,6 +137,7 @@ while True:
     for fireball in fireball_group:
         fireball.update(enemy_list)
     damage_text_group.update()
+    draw_health()
 
     # draw player on screen
     for enemy in enemy_list:
@@ -121,10 +145,12 @@ while True:
     player.draw(screen)
     wand.draw(screen)
     for fireball in fireball_group:
+        damage, damage_pos = fireball.update(enemy_list)
         fireball.draw(screen)
+        if damage:
+            damage_text = DamageText(damage_pos.centerx, damage_pos.centery, str(damage), constants.RED)
+            damage_text_group.add(damage_text)
     damage_text_group.draw(screen)
-
-    print(enemy.health)
 
     # even handler
     for event in pygame.event.get():
