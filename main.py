@@ -18,6 +18,9 @@ move_right = False
 move_up = False
 move_down = False
 
+#define font
+font = pygame.font.Font("assets/fonts/ColleenAntics.ttf", 20)
+
 #helper function to scale image
 def scale_image(image, scale):
     w = image.get_width()
@@ -46,6 +49,15 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animation.append(animation_list)
 
+# damage text class
+class DamageText(pygame.sprite.Sprite):
+    def __init__(self, x, y, damage, color):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = font.render(str(damage), True, color)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+
 # create Character
 player = Character(100, 100, 100,mob_animation, 0)
 
@@ -60,7 +72,12 @@ enemy_list = []
 enemy_list.append(enemy)
 
 #create sprite group
+damage_text_group = pygame.sprite.Group()
 fireball_group = pygame.sprite.Group()
+
+#temporeary damage text
+damage_text = DamageText(300, 400, "15", constants.RED)
+damage_text_group.add(damage_text)
 
 # game loop
 run = True
@@ -96,14 +113,16 @@ while True:
         fireball_group.add(fireball)
     for fireball in fireball_group:
         fireball.update(enemy_list)
+    damage_text_group.update()
 
-    # draw player
+    # draw player on screen
     for enemy in enemy_list:
         enemy.draw(screen)
     player.draw(screen)
     wand.draw(screen)
     for fireball in fireball_group:
         fireball.draw(screen)
+    damage_text_group.draw(screen)
 
     print(enemy.health)
 
