@@ -18,5 +18,4 @@ class Button():
         action = True
 
     surface.blit(self.image, self.rect)
-
     return action
