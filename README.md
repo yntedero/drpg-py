@@ -22,12 +22,6 @@ To start the game, run the following command:
 python main.py
 ```
 
-## Features
-- Multiple character types with unique animations
-- Various weapons and skills
-- Dynamic level generation
-- Interactive UI with buttons for starting, pausing, and restarting the game
-
 ## Directory Structure
 - `assets/`: Contains all game assets including images, fonts, and sounds
 - `levels/`: Contains level data in CSV format
