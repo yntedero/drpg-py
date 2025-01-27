@@ -15,10 +15,6 @@ DRPG Python is a dungeon role-playing game built using Python and Pygame.
    ```sh
    cd drpg-py
    ```
-3. Install the required dependencies:
-   ```sh
-   pip install -r requirements.txt
-   ```
 
 ## Running the Game
 To start the game, run the following command:
